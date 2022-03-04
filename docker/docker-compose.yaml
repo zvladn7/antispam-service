@@ -1,0 +1,79 @@
+version: '3.1'
+
+services:
+
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.7.0
+    container_name: kafka
+    ports:
+      - 9092:9092
+    hostname: localhost
+    links:
+      - zookeeper
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_ADVERTISED_PORT=9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CREATE_TOPICS=messages:1:1,read:1:1
+
+  kafka_manages:
+    image: sheepkiller/kafka-manager:stable
+    container_name: kafak_manager
+    ports:
+      - 9000:9000
+    links:
+      - zookeeper
+      - kafka
+    environment:
+      - APPLICATION_SECRET=password
+      - ZK_HOSTS=zookeeper:2181
+
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: antispam-service
+      POSTGRES_USER: antispam-service
+      POSTGRES_PASSWORD: password
+
+  adminer:
+    image: adminer:4.7
+    container_name: adminer
+    ports:
+      - 8081:8080
+    links:
+      - postgres
+
+  redis:
+    image: redis:5.0.5
+    container_name: redis
+    ports:
+      - 6379:6379
+
+  zoonavigator_web:
+    image: elkozmon/zoonavigator-web:0.6.1
+    container_name: zoonavigator-web
+    ports:
+      - 8001:8001
+    environment:
+      WEB_HTTP_PORT: 8001
+      API_HOST: zoonavigator_api
+      API_PORT: 9001
+    depends_on:
+      - zoonavigator_api
+
+  zoonavigator_api:
+    image: elkozmon/zoonavigator-api:0.6.1
+    container_name: zoonavigator-api
+    environment:
+      API_HTTP_PORT: 9001
