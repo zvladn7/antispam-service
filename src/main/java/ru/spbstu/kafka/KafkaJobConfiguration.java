@@ -19,5 +19,8 @@ public class KafkaJobConfiguration {
     private final Long pollTimeout;
     private final String customGroupId;
     private final int maxPoolRecords;
+    private final int processingThreadsCount;
+    private final int processingTimeout;
+    private final int maxFailsCount;
 
 }
