@@ -33,14 +33,6 @@ public class JobManager {
         this.initialDelay = initialDelay;
     }
 
-    public synchronized boolean cancel() {
-        if (future != null && !future.isDone()) {
-            future.cancel(true);
-            return future.isDone();
-        }
-        return true;
-    }
-
     public synchronized void scheduleIfNotRunning() {
         if (future == null || future.isDone()) {
             if (future != null && !future.isCancelled()) {
