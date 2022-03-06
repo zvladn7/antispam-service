@@ -16,19 +16,21 @@ public class JobManager {
 
     private final Runnable runnable;
     private final ScheduledExecutorService executorService;
-    private final JobManagerConfiguration jobManagerConfiguration;
+    private final Long period;
+    private final long initialDelay;
     private ScheduledFuture<?> future;
 
     public JobManager(@NotNull Runnable runnable,
                       @NotNull ScheduledExecutorService executorService,
-                      @NotNull JobManagerConfiguration jobManagerConfiguration) {
+                      @NotNull Long period,
+                      long initialDelay) {
         Validate.notNull(runnable);
         Validate.notNull(executorService);
-        Validate.notNull(jobManagerConfiguration);
 
         this.runnable = runnable;
         this.executorService = executorService;
-        this.jobManagerConfiguration = jobManagerConfiguration;
+        this.period = period;
+        this.initialDelay = initialDelay;
     }
 
     public synchronized boolean cancel() {
@@ -57,9 +59,7 @@ public class JobManager {
             log.error("the job is already running, no need to schedule second processing thread");
             return;
         }
-        long initialDelay = jobManagerConfiguration.getInitialDelayInSecond();
-        if (jobManagerConfiguration.getPeriod() != null) {
-            long period = jobManagerConfiguration.getPeriod();
+        if (period != null) {
             log.info("scheduling [{}], initial delay [{}] seconds, period [{}] seconds", runnable, initialDelay, period);
             future = executorService.scheduleAtFixedRate(runnable, initialDelay, period, TimeUnit.SECONDS);
         } else {

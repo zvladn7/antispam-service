@@ -39,8 +39,33 @@ public class KafkaConsumerJobFactory<T> {
 
     public void init() {
         executor = Executors.newScheduledThreadPool(POOL_SIZE);
+        KafkaConsumerJob<T> consumerJob = new KafkaConsumerJob<>(
+                componentId, jobConfiguration, consumerConfiguration, messageProcessor, messageParser);
+        JobManager consumerJobManager = new JobManager(consumerJob, executor, null, jobConfiguration.getInitialDelayInSeconds());
+        JobManager healthCheckerJobManager = new JobManager(healthChecker(consumerJobManager),
+                executor, jobConfiguration.getConsumerHeathCheckPeriodInSeconds(), jobConfiguration.getInitialDelayInSeconds());
+        consumerJobManager.scheduleIfNotRunning();
+        healthCheckerJobManager.scheduleIfNotRunning();
+    }
 
+    @NotNull
+    protected Runnable healthChecker(@NotNull JobManager manager) {
+        Validate.notNull(manager);
+        return new Runnable() {
+            @Override
+            public void run() {
+                manager.scheduleIfNotRunning();
+            }
 
+            @Override
+            public String toString() {
+                return "health-checker";
+            }
+        };
+    }
+
+    public void shutdown() {
+        executor.shutdownNow();
     }
 
 }

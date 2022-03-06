@@ -12,9 +12,8 @@ import java.util.Set;
 @ToString
 public class KafkaJobConfiguration {
 
-    private final boolean consumerEnabled;
     private final Set<String> sourceTopics;
-    private final boolean consumerHealthCheckerEnabled;
+    private final Long initialDelayInSeconds;
     private final long consumerHeathCheckPeriodInSeconds;
     private final Long pollTimeout;
     private final String customGroupId;
