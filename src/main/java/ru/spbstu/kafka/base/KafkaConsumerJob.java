@@ -1,4 +1,4 @@
-package ru.spbstu.kafka;
+package ru.spbstu.kafka.base;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.collections4.CollectionUtils;
@@ -96,7 +96,7 @@ public class KafkaConsumerJob<T> implements Runnable {
         } catch (Exception e) {
             shutdownFutures(futures);
             log.error("Error during consuming records from topic [{}], componentId: [{}]",
-                    jobConfiguration.getSourceTopics(), componentId, e);
+                    jobConfiguration.getSourceTopic(), componentId, e);
         } finally {
             if (wrapper != null) {
                 wrapper.shutdown();

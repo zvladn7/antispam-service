@@ -1,4 +1,4 @@
-package ru.spbstu.kafka;
+package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

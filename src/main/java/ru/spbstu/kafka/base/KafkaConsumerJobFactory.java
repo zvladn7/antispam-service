@@ -1,4 +1,4 @@
-package ru.spbstu.kafka;
+package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public class KafkaConsumerJobFactory<T> {
                 componentId, jobConfiguration, consumerConfiguration, messageProcessor, messageParser);
         JobManager consumerJobManager = new JobManager(consumerJob, executor, null, jobConfiguration.getInitialDelayInSeconds());
         JobManager healthCheckerJobManager = new JobManager(healthChecker(consumerJobManager),
-                executor, jobConfiguration.getConsumerHeathCheckPeriodInSeconds(), jobConfiguration.getInitialDelayInSeconds());
+                executor, jobConfiguration.getConsumerHealthCheckPeriodInSeconds(), jobConfiguration.getInitialDelayInSeconds());
         consumerJobManager.scheduleIfNotRunning();
         healthCheckerJobManager.scheduleIfNotRunning();
     }

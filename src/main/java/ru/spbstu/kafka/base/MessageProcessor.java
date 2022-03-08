@@ -1,4 +1,4 @@
-package ru.spbstu.kafka;
+package ru.spbstu.kafka.base;
 
 import org.jetbrains.annotations.NotNull;
 

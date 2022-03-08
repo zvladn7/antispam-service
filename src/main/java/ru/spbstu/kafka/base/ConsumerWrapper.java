@@ -1,4 +1,4 @@
-package ru.spbstu.kafka;
+package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 
 public class ConsumerWrapper {
@@ -79,7 +80,7 @@ public class ConsumerWrapper {
             properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaJobConfiguration.getMaxPoolRecords());
         }
         KafkaConsumer<Integer, String> consumer = new KafkaConsumer<>(properties);
-        consumer.subscribe(kafkaJobConfiguration.getSourceTopics(), new ConsumerRebalanceListener() {
+        consumer.subscribe(Collections.singletonList(kafkaJobConfiguration.getSourceTopic()), new ConsumerRebalanceListener() {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 log.info("Topic partitions revoked {}", partitions);

@@ -1,6 +1,6 @@
-package ru.spbstu.kafka;
+package ru.spbstu.kafka.base;
 
-public class JobManagerHealthConfiguration implements JobManagerConfiguration {
+public class JobManagerConsumerConfiguration implements JobManagerConfiguration {
 
     @Override
     public boolean isEnabled() {
