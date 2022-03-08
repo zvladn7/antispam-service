@@ -33,11 +33,11 @@ public class IpInfo {
     private long ip;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "TEXT", name = "userActivities")
+    @Column(columnDefinition = "TEXT", name = "ipActivities")
     private List<ActivityInfo> ipActivities;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "TEXT", name = "ips")
-    private List<String> ips;
+    @Column(columnDefinition = "TEXT", name = "users")
+    private List<String> users;
 
 }
