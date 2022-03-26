@@ -1,4 +1,4 @@
-package ru.spbstu.storage.dto;
+package ru.spbstu.storage.postgres.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

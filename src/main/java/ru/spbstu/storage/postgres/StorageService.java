@@ -1,4 +1,4 @@
-package ru.spbstu.storage;
+package ru.spbstu.storage.postgres;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,14 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.spbstu.antispam.ActivityInfo;
-import ru.spbstu.storage.dto.IpInfo;
-import ru.spbstu.storage.dto.UserInfo;
-import ru.spbstu.storage.repo.IpInfoRepository;
-import ru.spbstu.storage.repo.UserInfoRepository;
+import ru.spbstu.storage.postgres.dto.IpInfo;
+import ru.spbstu.storage.postgres.dto.UserInfo;
+import ru.spbstu.storage.postgres.repo.IpInfoRepository;
+import ru.spbstu.storage.postgres.repo.UserInfoRepository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class StorageService {

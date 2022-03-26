@@ -15,7 +15,7 @@ public class PropertiesProvider {
     private static final Logger log = LoggerFactory.getLogger(PropertiesProvider.class);
 
     public static Properties provideProperties(@NotNull String propertiesFileName) {
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream("./messages-consumer-properties.p"))) {
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(propertiesFileName))) {
             Properties properties = new Properties();
             properties.load(bis);
             return properties;
