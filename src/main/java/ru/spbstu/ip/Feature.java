@@ -2,8 +2,8 @@ package ru.spbstu.ip;
 
 public interface Feature {
 
-    long getKey();
+    long getKey(PreparedIpEntry preparedIpEntry);
 
-    String getValueString();
+    String getValueString(PreparedIpEntry preparedIpEntry);
 
 }

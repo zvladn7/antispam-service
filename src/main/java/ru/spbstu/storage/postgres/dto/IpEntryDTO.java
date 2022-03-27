@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.Validate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -62,10 +63,44 @@ public class IpEntryDTO {
     private double longitude;
 
     @Column(
+            name = "first_time",
+            nullable = false,
+            updatable = false
+    )
+    private int firstTime;
+
+    @Column(
+            name = "last_time",
+            nullable = false
+    )
+    private int lastTime;
+
+    @Column(
             name = "city",
             nullable = false,
             updatable = false
     )
     private boolean verified;
+
+
+    public IpEntryDTO(long userId,
+                      String ipAddress,
+                      String city,
+                      double latitude,
+                      double longitude,
+                      int firstTime,
+                      int lastTime,
+                      boolean verified) {
+        Validate.notNull(ipAddress);
+        Validate.notNull(city);
+        this.userId = userId;
+        this.ipAddress = ipAddress;
+        this.city = city;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.firstTime = firstTime;
+        this.lastTime = lastTime;
+        this.verified = verified;
+    }
 
 }

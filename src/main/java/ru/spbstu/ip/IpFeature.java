@@ -1,24 +1,37 @@
 package ru.spbstu.ip;
 
 import com.google.common.collect.ImmutableMap;
+import ru.spbstu.storage.ip.GeoIP;
 
 public enum IpFeature implements Feature {
     COORDINATES() {
         @Override
-        public long getKey() {
-            return 0;
+        public long getKey(PreparedIpEntry preparedIpEntry) {
+            return preparedIpEntry.getCoordinates();
         }
 
         @Override
-        public String getValueString() {
-            return null;
+        public String getValueString(PreparedIpEntry preparedIpEntry) {
+            IpEntry ipEntry = preparedIpEntry.getIpEntry();
+            GeoIP geoIPInfo = ipEntry.getGeoIPInfo();
+            return geoIPInfo.getLongitude() + ":" + geoIPInfo.getLatitude() + ":" + geoIPInfo.getCity();
         }
     };
 
     private static final int MAX_DISTANCE_IN_KM = 1000;
 
-    private static ImmutableMap<IpFeature, SimilarityFunction> SIMILARITY_FUNCTIONS = ImmutableMap.<IpFeature, SimilarityFunction>builder()
+    public static ImmutableMap<IpFeature, SimilarityFunction> SIMILARITY_FUNCTIONS = ImmutableMap.<IpFeature, SimilarityFunction>builder()
             .put(IpFeature.COORDINATES, (value1, value2) -> CoordinatesUtil.getCoordinatesSimilarity(value1, value2, MAX_DISTANCE_IN_KM))
             .build();
+
+    private static final int amountOfFeature = IpFeature.values().length;
+
+    private static int size() {
+        return amountOfFeature;
+    }
+
+    public double getValue(long key) {
+        return key != 0 ? 1 : 0;
+    }
 
 }
