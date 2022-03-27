@@ -8,14 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.spbstu.antispam.ActivityInfo;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -25,7 +18,7 @@ import java.util.List;
 @Setter
 @EqualsAndHashCode
 @ToString
-@Table(name = "userinfo")
+@Table(name = "userInfo")
 public class UserInfo {
 
     @Id
@@ -36,8 +29,7 @@ public class UserInfo {
     @Column(columnDefinition = "TEXT", name = "userActivities")
     private List<ActivityInfo> userActivities;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "TEXT", name = "ips")
-    private List<String> ips;
+    @OneToOne(mappedBy = "userId")
+    private IpEntryListDTO ipEntryListDTO;
 
 }
