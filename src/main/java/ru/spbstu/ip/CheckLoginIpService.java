@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.spbstu.antispam.ActivityInfo;
 import ru.spbstu.antispam.UserLogin;
+import ru.spbstu.kafka.publisher.ActivityInfoDTO;
+import ru.spbstu.kafka.publisher.ActivityInfoMapper;
+import ru.spbstu.kafka.publisher.IpResult;
+import ru.spbstu.kafka.publisher.KafkaPublisher;
 import ru.spbstu.storage.ip.GeoIP;
 import ru.spbstu.storage.ip.GeoIpDAO;
 import ru.spbstu.storage.postgres.StorageService;
@@ -28,18 +32,22 @@ public class CheckLoginIpService{
     private final StorageService storageService;
     private final GeoIpDAO geoIpDAO;
     private final CorrelationBasedChekVerificationAlgorithm verificationAlgorithm;
+    private final KafkaPublisher<IpResult> ipResultKafkaPublisher;
     private ExecutorService executorService;
 
     public CheckLoginIpService(@NotNull StorageService storageService,
                                @NotNull GeoIpDAO geoIpDAO,
-                               @NotNull CorrelationBasedChekVerificationAlgorithm verificationAlgorithm) {
+                               @NotNull CorrelationBasedChekVerificationAlgorithm verificationAlgorithm,
+                               @NotNull KafkaPublisher<IpResult> ipResultKafkaPublisher) {
         Validate.notNull(storageService);
         Validate.notNull(geoIpDAO);
         Validate.notNull(verificationAlgorithm);
+        Validate.notNull(ipResultKafkaPublisher);
 
         this.storageService = storageService;
         this.geoIpDAO = geoIpDAO;
         this.verificationAlgorithm = verificationAlgorithm;
+        this.ipResultKafkaPublisher = ipResultKafkaPublisher;
     }
 
     @PostConstruct
@@ -70,6 +78,9 @@ public class CheckLoginIpService{
             CheckIpResult checkIpResult = verificationAlgorithm.checkIP(ipEntryList, ipEntry);
             storageService.saveIpEntry(ipEntry);
             List<ActivityInfo> ipActivities = storageService.getIpActivities(loginIpAddress);
+            List<ActivityInfoDTO> ipActivitiesDTOList = ActivityInfoMapper.convert(ipActivities);
+            IpResult ipResult = new IpResult(userId, checkIpResult.getCorrelation(), ipActivitiesDTOList);
+            ipResultKafkaPublisher.publish(ipResult);
         });
     }
 
