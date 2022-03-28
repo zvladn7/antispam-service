@@ -14,10 +14,13 @@ import ru.spbstu.util.DateUtil;
 @AllArgsConstructor
 public class IpEntry {
 
+    @Setter
+    private Long id;
     private final long userId;
     private final GeoIP geoIPInfo;
     private final int firstTime;
-    private final int lastTime;
+    @Setter
+    private int lastTime;
     @Setter
     private boolean verified;
 

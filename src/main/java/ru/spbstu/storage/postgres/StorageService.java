@@ -44,13 +44,14 @@ public class StorageService {
     @Nullable
     public IpEntryList getIpEntryList(long userId) {
         Optional<UserInfo> optionalUserInfo = userInfoRepository.findById(userId);
-        if (!optionalUserInfo.isPresent()) {
+        if (optionalUserInfo.isEmpty()) {
             return null;
         }
         UserInfo userInfo = optionalUserInfo.get();
         IpEntryListDTO ipEntryListDTO = userInfo.getIpEntryListDTO();
         List<IpEntry> ipEntries = new ArrayList<>();
         for (IpEntryDTO dto : ipEntryListDTO.getIpEntryList()) {
+            long id = dto.getId();
             long userIdDto = dto.getUserId();
             String ipAddress = dto.getIpAddress();
             String city = dto.getCity();
@@ -60,14 +61,34 @@ public class StorageService {
             int lastTime = dto.getLastTime();
             boolean verified = dto.isVerified();
             GeoIP geoIP = new GeoIP(ipAddress, city, latitude, longitude);
-            ipEntries.add(new IpEntry(userIdDto, geoIP, firstTime, lastTime, verified));
+            ipEntries.add(new IpEntry(id, userIdDto, geoIP, firstTime, lastTime, verified));
         }
         return new IpEntryList(ipEntries);
     }
 
     public void saveIpEntry(@NotNull IpEntry ipEntry) {
+        if (ipEntry.getId() != null) {
+            updateIpEntry(ipEntry);
+            return;
+        }
         GeoIP geoIPInfo = ipEntry.getGeoIPInfo();
         IpEntryDTO dto = new IpEntryDTO(
+                ipEntry.getUserId(),
+                geoIPInfo.getIpAddress(),
+                geoIPInfo.getCity(),
+                geoIPInfo.getLatitude(),
+                geoIPInfo.getLongitude(),
+                ipEntry.getFirstTime(),
+                ipEntry.getLastTime(),
+                ipEntry.isVerified()
+        );
+        ipEntryRepository.save(dto);
+    }
+
+    public void updateIpEntry(@NotNull IpEntry ipEntry) {
+        GeoIP geoIPInfo = ipEntry.getGeoIPInfo();
+        IpEntryDTO dto = new IpEntryDTO(
+                ipEntry.getId(),
                 ipEntry.getUserId(),
                 geoIPInfo.getIpAddress(),
                 geoIPInfo.getCity(),
@@ -117,16 +138,17 @@ public class StorageService {
         }
     }
 
-    @NotNull List<ActivityInfo> getIpActivities(@Nullable Long ipId) {
-        if (ipId == null) {
+    @NotNull
+    public List<ActivityInfo> getIpActivities(@Nullable String ip) {
+        if (ip == null) {
             return Collections.emptyList();
         }
         try {
-            return ipInfoRepository.findById(ipId)
+            return ipInfoRepository.findById(ip)
                     .map(IpInfo::getIpActivities)
                     .orElse(Collections.emptyList());
         } catch (RuntimeException e) {
-            log.warn("Unable to get all ip activities from database, ipId=[{}]", ipId, e);
+            log.warn("Unable to get all ip activities from database, ip=[{}]", ip, e);
             return Collections.emptyList();
         }
     }

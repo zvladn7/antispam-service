@@ -6,12 +6,14 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.spbstu.antispam.ActivityInfo;
 import ru.spbstu.antispam.UserLogin;
 import ru.spbstu.storage.ip.GeoIP;
 import ru.spbstu.storage.ip.GeoIpDAO;
 import ru.spbstu.storage.postgres.StorageService;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -66,7 +68,8 @@ public class CheckLoginIpService{
             }
             IpEntry ipEntry = new IpEntry(userId, geoIP);
             CheckIpResult checkIpResult = verificationAlgorithm.checkIP(ipEntryList, ipEntry);
-
+            storageService.saveIpEntry(ipEntry);
+            List<ActivityInfo> ipActivities = storageService.getIpActivities(loginIpAddress);
         });
     }
 

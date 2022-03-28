@@ -5,5 +5,5 @@ import org.springframework.stereotype.Component;
 import ru.spbstu.storage.postgres.dto.IpInfo;
 
 @Component
-public interface IpInfoRepository extends JpaRepository<IpInfo, Long> {
+public interface IpInfoRepository extends JpaRepository<IpInfo, String> {
 }

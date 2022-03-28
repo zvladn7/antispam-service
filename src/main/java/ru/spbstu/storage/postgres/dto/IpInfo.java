@@ -29,8 +29,7 @@ import java.util.List;
 public class IpInfo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long ip;
+    private String ip;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(columnDefinition = "TEXT", name = "ipActivities")
