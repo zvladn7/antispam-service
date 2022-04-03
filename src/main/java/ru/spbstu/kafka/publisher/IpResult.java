@@ -9,19 +9,27 @@ import java.util.List;
 public class IpResult {
 
     private static final String USER_ID_FIELD = "user_id";
+    private static final String ERROR_CODE_FIELD = "error_code";
     private static final String CORRELATION_FIELD = "correlation";
-    private static final String ACTIVITY_INFOS_FIELD = "activity_infos";
+    private static final String IP_ACTIVITY_INFOS_FIELD = "ip_activity_infos";
+    private static final String USER_ACTIVITY_INFOS_FIELD = "user_activity_infos";
 
     private final long userId;
+    private final ErrorCode errorCode;
     private final double correlation;
-    private final List<ActivityInfoDTO> activityInfos;
+    private final List<ActivityInfoDTO> ipActivityInfos;
+    private final List<ActivityInfoDTO> userActivityInfos;
 
     public IpResult(@JsonProperty(value = USER_ID_FIELD) long userId,
+                    @JsonProperty(value = ERROR_CODE_FIELD) ErrorCode errorCode,
                     @JsonProperty(value = CORRELATION_FIELD) double correlation,
-                    @JsonProperty(value = ACTIVITY_INFOS_FIELD) List<ActivityInfoDTO> activityInfos) {
+                    @JsonProperty(value = IP_ACTIVITY_INFOS_FIELD) List<ActivityInfoDTO> ipActivityInfos,
+                    @JsonProperty(value = USER_ACTIVITY_INFOS_FIELD) List<ActivityInfoDTO> userActivityInfos) {
         this.userId = userId;
+        this.errorCode = errorCode;
         this.correlation = correlation;
-        this.activityInfos = activityInfos;
+        this.ipActivityInfos = ipActivityInfos;
+        this.userActivityInfos = userActivityInfos;
     }
 
     @JsonProperty(value = USER_ID_FIELD)
@@ -29,14 +37,24 @@ public class IpResult {
         return userId;
     }
 
+    @JsonProperty(value = ERROR_CODE_FIELD)
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
     @JsonProperty(value = CORRELATION_FIELD)
     public double getCorrelation() {
         return correlation;
     }
 
-    @JsonProperty(value = ACTIVITY_INFOS_FIELD)
-    public List<ActivityInfoDTO> getActivityInfos() {
-        return activityInfos;
+    @JsonProperty(value = IP_ACTIVITY_INFOS_FIELD)
+    public List<ActivityInfoDTO> getIpActivityInfos() {
+        return ipActivityInfos;
+    }
+
+    @JsonProperty(value = USER_ACTIVITY_INFOS_FIELD)
+    public List<ActivityInfoDTO> getUserActivityInfos() {
+        return userActivityInfos;
     }
 
 }

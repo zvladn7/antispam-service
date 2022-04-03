@@ -36,7 +36,7 @@ public class UserLoginEventProcessor implements MessageProcessor<UserLogin> {
 
     private void processMessage(@NotNull String topic,
                                 @NotNull UserLogin userLogin) {
-        checkLoginIpService.checkIpInAsyncPool(userLogin);
+        checkLoginIpService.processLogin(userLogin);
         log.debug("UserLogin: [{}] message is processed from topic: [{}]", userLogin, topic);
     }
 }

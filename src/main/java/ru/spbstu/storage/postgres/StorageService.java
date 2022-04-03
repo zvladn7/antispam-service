@@ -1,11 +1,14 @@
 package ru.spbstu.storage.postgres;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.spbstu.antispam.Activity;
 import ru.spbstu.antispam.ActivityInfo;
 import ru.spbstu.ip.IpEntry;
 import ru.spbstu.ip.IpEntryList;
@@ -18,10 +21,7 @@ import ru.spbstu.storage.postgres.repo.IpEntryRepository;
 import ru.spbstu.storage.postgres.repo.IpInfoRepository;
 import ru.spbstu.storage.postgres.repo.UserInfoRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StorageService {
@@ -41,11 +41,11 @@ public class StorageService {
         this.ipEntryRepository = ipEntryRepository;
     }
 
-    @Nullable
-    public IpEntryList getIpEntryList(long userId) {
+    @NotNull
+    public Pair<IpEntryList, List<ActivityInfo>> getIpEntryList(long userId) {
         Optional<UserInfo> optionalUserInfo = userInfoRepository.findById(userId);
         if (optionalUserInfo.isEmpty()) {
-            return null;
+            return Pair.of(null, null);
         }
         UserInfo userInfo = optionalUserInfo.get();
         IpEntryListDTO ipEntryListDTO = userInfo.getIpEntryListDTO();
@@ -63,7 +63,7 @@ public class StorageService {
             GeoIP geoIP = new GeoIP(ipAddress, city, latitude, longitude);
             ipEntries.add(new IpEntry(id, userIdDto, geoIP, firstTime, lastTime, verified));
         }
-        return new IpEntryList(ipEntries);
+        return Pair.of(new IpEntryList(ipEntries), userInfo.getUserActivities());
     }
 
     public void saveIpEntry(@NotNull IpEntry ipEntry) {
@@ -123,6 +123,19 @@ public class StorageService {
         }
     }
 
+    @Nullable
+    public UserInfo getUserInfo(@Nullable Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        try {
+            return userInfoRepository.findById(userId).orElse(null);
+        } catch (RuntimeException e) {
+            log.warn("Failed to get UserInfo by userId=[{}]", userId, e);
+            return null;
+        }
+    }
+
     @NotNull
     public List<ActivityInfo> getUserActivities(@Nullable Long userId) {
         if (userId == null) {
@@ -135,6 +148,36 @@ public class StorageService {
         } catch (RuntimeException e) {
             log.warn("Unable to get all user activities from database, userId=[{}]", userId, e);
             return Collections.emptyList();
+        }
+    }
+
+    @NotNull
+    public List<Long> getIpUsers(@Nullable String ip,
+                                      long userId) {
+        if (ip == null) {
+            return Collections.singletonList(userId);
+        }
+        try {
+            List<UserInfo> allUsers = userInfoRepository.findAll();
+            List<Long> ipUserIds = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(allUsers)) {
+                for (UserInfo userInfo : allUsers) {
+                    List<ActivityInfo> userActivities = userInfo.getUserActivities();
+                    for (ActivityInfo activityInfo : userActivities) {
+                        if (Activity.USER_LAST_IP_HASH.getName().equals(activityInfo.getActivity().getName())) {
+                            int ipHash = activityInfo.getValue();
+                            if (ipHash == ip.hashCode() && userId != userInfo.getUserId()) {
+                                ipUserIds.add(userInfo.getUserId());
+                            }
+                        }
+                    }
+                }
+            }
+            ipUserIds.add(userId);
+            return ipUserIds;
+        } catch (Exception ex) {
+            log.error("Cannot get all users for ip [{}] when processing [{}]", ip, userId, ex);
+            return Collections.singletonList(userId);
         }
     }
 

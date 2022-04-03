@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -37,6 +38,6 @@ public class IpInfo {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(columnDefinition = "TEXT", name = "users")
-    private List<String> users;
+    private Set<String> users;
 
 }
