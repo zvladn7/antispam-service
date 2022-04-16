@@ -1,6 +1,5 @@
 package ru.spbstu.ip;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -24,27 +23,21 @@ import ru.spbstu.storage.postgres.StorageService;
 import ru.spbstu.storage.postgres.dto.IpInfo;
 import ru.spbstu.storage.postgres.dto.UserInfo;
 import ru.spbstu.util.DateUtil;
+import ru.spbstu.vpn.VPNDetection;
 
-import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
-public class CheckLoginIpService{
+public class CheckLoginIpService {
 
     private static final Logger logger = LoggerFactory.getLogger(CheckLoginIpService.class);
-    private static final int QUEUE_SIZE = 10000;
 
     private final StorageService storageService;
     private final GeoIpDAO geoIpDAO;
     private final CorrelationBasedChekVerificationAlgorithm verificationAlgorithm;
     private final KafkaPublisher<IpResult> ipResultKafkaPublisher;
-    private ExecutorService executorService;
 
     public CheckLoginIpService(@NotNull StorageService storageService,
                                @NotNull GeoIpDAO geoIpDAO,
@@ -61,35 +54,31 @@ public class CheckLoginIpService{
         this.ipResultKafkaPublisher = ipResultKafkaPublisher;
     }
 
-    @PostConstruct
-    public void init() {
-        int workersNumber = Runtime.getRuntime().availableProcessors();
-        executorService =  new ThreadPoolExecutor(workersNumber, workersNumber,
-                0L, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(QUEUE_SIZE),
-                new ThreadFactoryBuilder()
-                        .setNameFormat("worker-%d")
-                        .setUncaughtExceptionHandler((t, e) -> logger.error("Error when processing request in: {}", t, e)
-                        ).build(),
-                new ThreadPoolExecutor.AbortPolicy()
-        );
+    public void processLogin(@NotNull UserLogin userLogin) {
+        long userId = userLogin.getUserId();
+        Pair<IpEntryList, List<ActivityInfo>> ipEntryActivitiesPair = storageService.getIpEntryList(userId);
+        List<ActivityInfoDTO> userActivityInfos = processLoginUser(userLogin, ipEntryActivitiesPair.getValue());
+        Triple<Double, List<ActivityInfoDTO>, ErrorCode> processLoginIpResult
+                = processLoginIp(userLogin, ipEntryActivitiesPair.getKey());
+        boolean ipHostVpn = isIpHostVpn(userLogin.getLoginIpAddress());
+        ipResultKafkaPublisher.publish(new IpResult(
+                userId,
+                userLogin.getLoginIpAddress(),
+                ipHostVpn,
+                processLoginIpResult.getRight(),
+                processLoginIpResult.getLeft(),
+                processLoginIpResult.getMiddle(),
+                userActivityInfos
+        ));
     }
 
-    public void processLogin(@NotNull UserLogin userLogin) {
-//        executorService.submit(() -> {
-            long userId = userLogin.getUserId();
-            Pair<IpEntryList, List<ActivityInfo>> ipEntryActivitiesPair = storageService.getIpEntryList(userId);
-            List<ActivityInfoDTO> userActivityInfos = processLoginUser(userLogin, ipEntryActivitiesPair.getValue());
-            Triple<Double, List<ActivityInfoDTO>, ErrorCode> processLoginIpResult
-                    = processLoginIp(userLogin, ipEntryActivitiesPair.getKey());
-            ipResultKafkaPublisher.publish(new IpResult(
-                    userId,
-                    processLoginIpResult.getRight(),
-                    processLoginIpResult.getLeft(),
-                    processLoginIpResult.getMiddle(),
-                    userActivityInfos
-            ));
-//        });
+    private boolean isIpHostVpn(@NotNull String ipToLookup) {
+        try {
+            return new VPNDetection().getResponse(ipToLookup).hostip;
+        } catch (IOException e) {
+            logger.warn("Failed to detect vpn for ip: [{}]", ipToLookup, e);
+            return false;
+        }
     }
 
     private List<ActivityInfoDTO> processLoginUser(@NotNull UserLogin userLogin,
