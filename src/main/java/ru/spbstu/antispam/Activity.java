@@ -18,6 +18,11 @@ public class Activity {
     public static final Activity USER_LAST_TIME_LOGIN = BUILDER.addActivity("USER_LAST_TIME_LOGIN", 5);
     public static final Activity USER_LAST_IP_HASH = BUILDER.addActivity("USER_LAST_IP", 6);
 
+    //all messages limit
+    public static final Activity MESSAGE_WINDOW_COUNT = BUILDER.addActivity("MESSAGE_WINDOW_COUNT", 7);
+    public static final Activity MESSAGE_WINDOW_FIRST_TIMESTAMP = BUILDER.addActivity("MESSAGE_WINDOW_FIRST_TIMESTAMP", 8);
+    public static final Activity MESSAGE_WINDOW_LAST_TIMESTAMP = BUILDER.addActivity("MESSAGE_WINDOW_LAST_TIMESTAMP", 7);
+
     private final String name;
     private final int id;
 

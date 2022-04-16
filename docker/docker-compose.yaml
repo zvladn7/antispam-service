@@ -20,7 +20,7 @@ services:
       - KAFKA_ADVERTISED_HOST_NAME=localhost
       - KAFKA_ADVERTISED_PORT=9092
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper-antispam:2181
-      - KAFKA_CREATE_TOPICS=antispamMessages:1:1,antispamUserLogins:1:1,ipResultTopic:1:1
+      - KAFKA_CREATE_TOPICS=antispamMessages:1:1,antispamUserLogins:1:1,ipResultTopic:1:1,messagesResultTopic:1:1
     depends_on:
       - zookeeper-antispam
 
