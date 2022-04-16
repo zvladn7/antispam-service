@@ -6,7 +6,7 @@ import ru.spbstu.storage.ip.GeoIP;
 public enum IpFeature implements Feature {
     COORDINATES() {
         @Override
-        public long getKey(PreparedIpEntry preparedIpEntry) {
+        public String getKey(PreparedIpEntry preparedIpEntry) {
             return preparedIpEntry.getCoordinates();
         }
 
@@ -30,8 +30,8 @@ public enum IpFeature implements Feature {
         return amountOfFeature;
     }
 
-    public double getValue(long key) {
-        return key != 0 ? 1 : 0;
+    public double getValue(String key) {
+        return 1;
     }
 
 }

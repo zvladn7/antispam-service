@@ -14,7 +14,7 @@ import java.util.Properties;
 public class IpResultPublisherFactory {
 
     private static final String TOPIC = "ipResultTopic";
-    private static final String PUBLISHER_PROPERTIES_FILE_PATH = "./ip-result-publisher.properties";
+    private static final String PUBLISHER_PROPERTIES_FILE_PATH = "./src/main/resources/ip-result-publisher.properties";
 
     private final ObjectMapper mapper;
     private final Properties publisherConfiguration;
@@ -34,6 +34,7 @@ public class IpResultPublisherFactory {
                 publisherConfiguration,
                 ipResult -> String.valueOf(ipResult.getUserId()).hashCode()
         );
+        ipResultKafkaPublisher.refresh();
     }
 
     @Bean(destroyMethod = "shutdown")

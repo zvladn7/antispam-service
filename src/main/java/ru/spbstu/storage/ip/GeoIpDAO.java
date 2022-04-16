@@ -19,7 +19,7 @@ import java.net.UnknownHostException;
 public class GeoIpDAO implements SmartLifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(GeoIpDAO.class);
-    private static final String DB_FILE_LOCATION = "./GeoList2-City.mmdb";
+    private static final String DB_FILE_LOCATION = "src/main/resources/GeoLite2-City.mmdb";
 
     private volatile boolean running;
     private DatabaseReader dbReader;

@@ -69,7 +69,12 @@ public class RecordJob<T> implements Runnable {
             if (event == null) {
                 return;
             }
-            processEventWithRetries(event, record.topic());
+            if (!processEventWithRetries(event, record.topic())) {
+                log.error("failed {} times. Skipping event [{}] for record [{}], component [{}]",
+                        maxFailsCount, event, record, componentId);
+            } else {
+                processed = true;
+            }
         } catch (Exception e) {
             log.error("Component [{}] failed during consuming record \n [{}]", componentId, record, e);
             closed.set(true);
@@ -78,16 +83,18 @@ public class RecordJob<T> implements Runnable {
         }
     }
 
-    private void processEventWithRetries(@NotNull T event,
-                                         @NotNull String topic) {
+    private boolean processEventWithRetries(@NotNull T event,
+                                            @NotNull String topic) {
         int failsCount = 0;
         while (!closed.get() && failsCount < maxFailsCount) {
             try {
                 messageProcessor.process(Collections.singletonMap(topic, Collections.singletonList(event)));
+                return true;
             } catch (Exception e) {
                 failsCount++;
                 log.error("Component [{}] failed to process event: [{}]", componentId, event, e);
             }
         }
+        return failsCount != maxFailsCount;
     }
 }

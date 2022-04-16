@@ -1,8 +1,10 @@
 package ru.spbstu.kafka.publisher;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.util.CollectionUtils;
+import ru.spbstu.antispam.Activity;
 import ru.spbstu.antispam.ActivityInfo;
 
 import java.util.ArrayList;
@@ -21,6 +23,41 @@ public class ActivityInfoMapper {
             dtoList.add(convert(activityInfo));
         }
         return dtoList;
+    }
+
+    @NotNull
+    public static String convertToString(@Nullable List<ActivityInfo> activityInfos) {
+        if (CollectionUtils.isEmpty(activityInfos)) {
+            return "null";
+        }
+        StringBuilder convertedActivities = new StringBuilder();
+        for (ActivityInfo activityInfo : activityInfos) {
+            convertedActivities.append(activityInfo.getActivity().getName())
+                    .append("=")
+                    .append(activityInfo.getValue())
+                    .append("\n");
+        }
+        return convertedActivities.toString();
+    }
+
+    @NotNull
+    public static List<ActivityInfo> convertFromString(@NotNull String activityInfosString) {
+        if ("null".equals(activityInfosString)) {
+            return Collections.emptyList();
+        }
+        List<ActivityInfo> activityInfos = new ArrayList<>();
+        String[] splittedActivities = activityInfosString.split("\n");
+        for (String activityString : splittedActivities) {
+            if (StringUtils.isBlank(activityString)) {
+                continue;
+            }
+            String[] keyValue = activityString.split("=");
+            activityInfos.add(new ActivityInfo(
+                    Activity.getActivityByName(keyValue[0]),
+                    Integer.parseInt(keyValue[1])
+            ));
+        }
+        return activityInfos;
     }
 
     private static ActivityInfoDTO convert(ActivityInfo activityInfo) {

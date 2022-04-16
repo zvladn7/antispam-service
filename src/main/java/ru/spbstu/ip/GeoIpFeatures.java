@@ -4,13 +4,13 @@ import java.io.Serializable;
 
 public class GeoIpFeatures implements Serializable {
 
-    private long coordinates = 0;
+    private String coordinates;
 
-    public long getCoordinates() {
+    public String getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(long coordinates) {
+    public void setCoordinates(String coordinates) {
         this.coordinates = coordinates;
     }
 

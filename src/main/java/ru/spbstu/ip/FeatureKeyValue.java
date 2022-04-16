@@ -3,11 +3,11 @@ package ru.spbstu.ip;
 public class FeatureKeyValue {
 
     private final IpFeature feature;
-    private final long key;
+    private final String key;
     private final double value;
 
     public FeatureKeyValue(IpFeature feature,
-                           long key,
+                           String key,
                            double value) {
         this.feature = feature;
         this.key = key;
@@ -18,7 +18,7 @@ public class FeatureKeyValue {
         return feature;
     }
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 

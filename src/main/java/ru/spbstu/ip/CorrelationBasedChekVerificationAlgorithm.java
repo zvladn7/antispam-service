@@ -81,8 +81,8 @@ public class CorrelationBasedChekVerificationAlgorithm {
                 if (featureVector == null) {
                     continue;
                 }
-                Set<Long> featureKeys = featureVector.getValues().keySet();
-                long newFeatureKey = featureKeyValue.getKey();
+                Set<String> featureKeys = featureVector.getValues().keySet();
+                String newFeatureKey = featureKeyValue.getKey();
                 if (featureKeys.contains(newFeatureKey)) {
                     bestWeight = 1;
                 } else if (similarityFunction != null) {
@@ -97,10 +97,10 @@ public class CorrelationBasedChekVerificationAlgorithm {
     }
 
     private double getMaxSimilarity(@NotNull SimilarityFunction similarityFunction,
-                                    @NotNull Set<Long> featureKeys,
-                                    long newFeatureKey) {
+                                    @NotNull Set<String> featureKeys,
+                                    String newFeatureKey) {
         double maxSimilarity = 0;
-        for (Long key : featureKeys) {
+        for (String key : featureKeys) {
             maxSimilarity = Math.max(maxSimilarity, similarityFunction.getSimilarity(key, newFeatureKey));
             if (maxSimilarity >= 1) {
                 break;

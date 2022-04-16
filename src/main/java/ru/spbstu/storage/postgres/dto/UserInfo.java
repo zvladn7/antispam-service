@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 import ru.spbstu.antispam.ActivityInfo;
+import ru.spbstu.kafka.publisher.ActivityInfoDTO;
+import ru.spbstu.kafka.publisher.ActivityInfoMapper;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,22 +17,28 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
 @EqualsAndHashCode
 @ToString
-@Table(name = "userInfo")
+@Table
 public class UserInfo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private long userId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "TEXT", name = "userActivities")
-    private List<ActivityInfo> userActivities;
+    @Column(name = "userActivities")
+    private String userActivities;
 
-    @OneToOne(mappedBy = "userId")
-    private IpEntryListDTO ipEntryListDTO;
+    public UserInfo(long userId,
+                    List<ActivityInfo> userActivities) {
+        this.userId = userId;
+        this.userActivities = ActivityInfoMapper.convertToString(userActivities);
+    }
+
+    @NotNull
+    public List<ActivityInfo> getUserActivities() {
+        return ActivityInfoMapper.convertFromString(userActivities);
+    }
 
 }

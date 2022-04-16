@@ -7,23 +7,23 @@ import ru.spbstu.kafka.base.KafkaJobConfiguration;
 @Configuration
 public class UserLoginConfiguration implements KafkaJobConfiguration {
 
-    @Value(value = "antispam.kafka-consumer.userLogin.source-topic")
+    @Value(value = "${antispam.kafka-consumer.userLogin.source-topic}")
     private String sourceTopic;
-    @Value(value = "antispam.kafka-consumer.userLogin.initial-delay-in-seconds")
+    @Value(value = "${antispam.kafka-consumer.userLogin.initial-delay-in-seconds}")
     private Long initialDelayInSeconds;
-    @Value(value = "antispam.kafka-consumer.userLogin.consumer-health-check-period-in-seconds")
+    @Value(value = "${antispam.kafka-consumer.userLogin.consumer-health-check-period-in-seconds}")
     private long consumerHealthCheckPeriodInSeconds;
-    @Value(value = "antispam.kafka-consumer.userLogin.poll-timeout")
+    @Value(value = "${antispam.kafka-consumer.userLogin.poll-timeout}")
     private Long pollTimeout;
-    @Value(value = "antispam.kafka-consumer.userLogin.custom-group-id")
+    @Value(value = "${antispam.kafka-consumer.userLogin.custom-group-id}")
     private String customGroupId;
-    @Value(value = "antispam.kafka-consumer.userLogin.max-pool-records")
+    @Value(value = "${antispam.kafka-consumer.userLogin.max-pool-records}")
     private int maxPoolRecords;
-    @Value(value = "antispam.kafka-consumer.userLogin.processing-threads-count")
+    @Value(value = "${antispam.kafka-consumer.userLogin.processing-threads-count}")
     private int processingThreadsCount;
-    @Value(value = "antispam.kafka-consumer.userLogin.processing-timeout")
+    @Value(value = "${antispam.kafka-consumer.userLogin.processing-timeout}")
     private int processingTimeout;
-    @Value(value = "antispam.kafka-consumer.userLogin.max-fails-count")
+    @Value(value = "${antispam.kafka-consumer.userLogin.max-fails-count}")
     private int maxFailsCount;
 
     @Override

@@ -1,6 +1,5 @@
 package ru.spbstu.storage.postgres;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,13 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import ru.spbstu.antispam.Activity;
 import ru.spbstu.antispam.ActivityInfo;
 import ru.spbstu.ip.IpEntry;
 import ru.spbstu.ip.IpEntryList;
 import ru.spbstu.storage.ip.GeoIP;
 import ru.spbstu.storage.postgres.dto.IpEntryDTO;
-import ru.spbstu.storage.postgres.dto.IpEntryListDTO;
 import ru.spbstu.storage.postgres.dto.IpInfo;
 import ru.spbstu.storage.postgres.dto.UserInfo;
 import ru.spbstu.storage.postgres.repo.IpEntryRepository;
@@ -48,22 +47,32 @@ public class StorageService {
             return Pair.of(null, null);
         }
         UserInfo userInfo = optionalUserInfo.get();
-        IpEntryListDTO ipEntryListDTO = userInfo.getIpEntryListDTO();
-        List<IpEntry> ipEntries = new ArrayList<>();
-        for (IpEntryDTO dto : ipEntryListDTO.getIpEntryList()) {
-            long id = dto.getId();
-            long userIdDto = dto.getUserId();
-            String ipAddress = dto.getIpAddress();
-            String city = dto.getCity();
-            double latitude = dto.getLatitude();
-            double longitude = dto.getLongitude();
-            int firstTime = dto.getFirstTime();
-            int lastTime = dto.getLastTime();
-            boolean verified = dto.isVerified();
-            GeoIP geoIP = new GeoIP(ipAddress, city, latitude, longitude);
-            ipEntries.add(new IpEntry(id, userIdDto, geoIP, firstTime, lastTime, verified));
+        return Pair.of(getEntryList(userId), userInfo.getUserActivities());
+    }
+
+    @Nullable
+    public IpEntryList getEntryList(long userId) {
+        List<IpEntryDTO> all = ipEntryRepository.findAll();
+        if (CollectionUtils.isEmpty(all)) {
+            return null;
         }
-        return Pair.of(new IpEntryList(ipEntries), userInfo.getUserActivities());
+        List<IpEntry> userIpEntries = new ArrayList<>();
+        for (IpEntryDTO dto : all) {
+            if (dto.getUserId() == userId) {
+                long id = dto.getId();
+                long userIdDto = dto.getUserId();
+                String ipAddress = dto.getIpAddress();
+                String city = dto.getCity();
+                double latitude = dto.getLatitude();
+                double longitude = dto.getLongitude();
+                int firstTime = dto.getFirstTime();
+                int lastTime = dto.getLastTime();
+                boolean verified = dto.isVerified();
+                GeoIP geoIP = new GeoIP(ipAddress, city, latitude, longitude);
+                userIpEntries.add(new IpEntry(id, userIdDto, geoIP, firstTime, lastTime, verified));
+            }
+        }
+        return new IpEntryList(userIpEntries);
     }
 
     public void saveIpEntry(@NotNull IpEntry ipEntry) {
@@ -160,7 +169,7 @@ public class StorageService {
         try {
             List<UserInfo> allUsers = userInfoRepository.findAll();
             List<Long> ipUserIds = new ArrayList<>();
-            if (CollectionUtils.isNotEmpty(allUsers)) {
+            if (!CollectionUtils.isEmpty(allUsers)) {
                 for (UserInfo userInfo : allUsers) {
                     List<ActivityInfo> userActivities = userInfo.getUserActivities();
                     for (ActivityInfo activityInfo : userActivities) {

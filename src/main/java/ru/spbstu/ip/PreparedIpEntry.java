@@ -23,7 +23,17 @@ public class PreparedIpEntry {
         return ipEntry;
     }
 
-    public long getCoordinates() {
+    public long getLatitude() {
+        String coordinates = geoIpFeatures.getCoordinates();
+        return Long.parseLong(coordinates.split(",")[0]);
+    }
+
+    public long getLongitude() {
+        String coordinates = geoIpFeatures.getCoordinates();
+        return Long.parseLong(coordinates.split(",")[1]);
+    }
+
+    public String getCoordinates() {
         return geoIpFeatures.getCoordinates();
     }
 

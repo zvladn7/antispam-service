@@ -1,7 +1,6 @@
 package ru.spbstu.ip;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -10,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import ru.spbstu.antispam.Activity;
 import ru.spbstu.antispam.ActivityInfo;
 import ru.spbstu.antispam.UserLogin;
@@ -76,7 +76,7 @@ public class CheckLoginIpService{
     }
 
     public void processLogin(@NotNull UserLogin userLogin) {
-        executorService.submit(() -> {
+//        executorService.submit(() -> {
             long userId = userLogin.getUserId();
             Pair<IpEntryList, List<ActivityInfo>> ipEntryActivitiesPair = storageService.getIpEntryList(userId);
             List<ActivityInfoDTO> userActivityInfos = processLoginUser(userLogin, ipEntryActivitiesPair.getValue());
@@ -89,17 +89,15 @@ public class CheckLoginIpService{
                     processLoginIpResult.getMiddle(),
                     userActivityInfos
             ));
-        });
+//        });
     }
 
     private List<ActivityInfoDTO> processLoginUser(@NotNull UserLogin userLogin,
-                                                @Nullable List<ActivityInfo> userActivityInfos) {
+                                                   @Nullable List<ActivityInfo> userActivityInfos) {
         List<ActivityInfo> updatedActivityInfos = updateUserActivities(userLogin, userActivityInfos);
-        UserInfo userInfo = storageService.getUserInfo(userLogin.getUserId());
         storageService.saveUserInfo(new UserInfo(
                 userLogin.getUserId(),
-                updatedActivityInfos,
-                userInfo == null ? null : userInfo.getIpEntryListDTO()
+                updatedActivityInfos
         ));
         return ActivityInfoMapper.convert(updatedActivityInfos);
     }
@@ -112,7 +110,7 @@ public class CheckLoginIpService{
         storageService.saveIpInfoRepository(new IpInfo(
                 userLogin.getLoginIpAddress(),
                 ipActivities,
-                userIds.stream().map(String::valueOf).collect(Collectors.toSet())
+                userIds
         ));
         GeoIP geoIP = geoIpDAO.getLocation(userLogin.getLoginIpAddress());
         if (geoIP == null) {
@@ -148,7 +146,7 @@ public class CheckLoginIpService{
                                         @NotNull List<ActivityInfo> newActivityInfos,
                                         @NotNull Activity activity) {
         boolean firstTimeLogin = true;
-        if (CollectionUtils.isNotEmpty(activityInfos)) {
+        if (!CollectionUtils.isEmpty(activityInfos)) {
             for (ActivityInfo activityInfo : activityInfos) {
                 if (activity.getName().equals(activityInfo.getActivity().getName())) {
                     firstTimeLogin = false;

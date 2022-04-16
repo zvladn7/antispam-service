@@ -1,7 +1,6 @@
 package ru.spbstu.kafka.base;
 
 import com.google.common.base.Joiner;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class KafkaConsumerJob<T> implements Runnable {
 
@@ -70,6 +71,11 @@ public class KafkaConsumerJob<T> implements Runnable {
                 if (recordsSize == 0) {
                     continue;
                 }
+                long lastOffset = 0;
+                for (ConsumerRecord<Integer, String> record : records) {
+                    lastOffset = Math.max(lastOffset, record.offset());
+                }
+                log.info("Component [{}], offset [{}]", componentId, lastOffset);
                 log.debug("Component [{}] read [{}] records", componentId, records);
                 threadsCountLatch = new CountDownLatch(recordsSize);
                 List<ConsumerRecord<Integer, String>> batchOfRecords = new ArrayList<>(recordsSize);
@@ -117,7 +123,7 @@ public class KafkaConsumerJob<T> implements Runnable {
     }
 
     private void shutdownFutures(@Nullable List<Future<?>> futures) {
-        if (CollectionUtils.isNotEmpty(futures)) {
+        if (!CollectionUtils.isEmpty(futures)) {
             log.info("Component [{}] shutdown processing of job", componentId);
             for (Future<?> future : futures) {
                 future.cancel(true);

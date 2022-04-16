@@ -16,7 +16,7 @@ import java.util.Properties;
 public class UserLoginEventConsumerJobFactory {
 
     private static final String componentId = "userLogins";
-    private static final String CONSUMER_PROPERTIES_FILE_PATH = "./userlogin-consumer-properties.properties";
+    private static final String CONSUMER_PROPERTIES_FILE_PATH = "./src/main/resources/userlogin-consumer-properties.properties";
 
     private final KafkaConsumerJobFactory<UserLogin> consumerJobFactory;
 

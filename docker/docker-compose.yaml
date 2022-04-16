@@ -2,78 +2,64 @@ version: '3.1'
 
 services:
 
-  zookeeper:
+  zookeeper-antispam:
     image: wurstmeister/zookeeper:3.4.6
-    container_name: zookeeper
+    container_name: zookeeper-antispam
     ports:
       - 2181:2181
 
-  kafka:
+  kafka-antispam:
     image: wurstmeister/kafka:2.13-2.7.0
-    container_name: kafka
+    container_name: kafka-antispam
     ports:
       - 9092:9092
     hostname: localhost
     links:
-      - zookeeper
+      - zookeeper-antispam
     environment:
       - KAFKA_ADVERTISED_HOST_NAME=localhost
       - KAFKA_ADVERTISED_PORT=9092
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CREATE_TOPICS=messages:1:1,read:1:1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper-antispam:2181
+      - KAFKA_CREATE_TOPICS=antispamMessages:1:1,antispamUserLogins:1:1,ipResultTopic:1:1
+    depends_on:
+      - zookeeper-antispam
 
-  kafka_manages:
+  kafka_manages_antispam:
     image: sheepkiller/kafka-manager:stable
-    container_name: kafak_manager
+    container_name: kafka_manages_antispam
     ports:
       - 9000:9000
     links:
-      - zookeeper
-      - kafka
+      - zookeeper-antispam
+      - kafka-antispam
     environment:
       - APPLICATION_SECRET=password
       - ZK_HOSTS=zookeeper:2181
 
-  postgres:
-    build:
-      context: ./postgres
-      dockerfile: Dockerfile
-    container_name: postgres
+  postgres-antispam:
+    image: postgres:11
+    container_name: postgres-antispam
     ports:
-      - 5432:5432
+      - 5434:5432
     environment:
-      POSTGRES_DB: antispam-service
-      POSTGRES_USER: antispam-service
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: antispam
+      POSTGRES_USER: antispam
+      POSTGRES_PASSWORD: antispam
 
-  adminer:
-    image: adminer:4.7
-    container_name: adminer
-    ports:
-      - 8081:8080
-    links:
-      - postgres
-
-  redis:
-    image: redis:5.0.5
-    container_name: redis
-    ports:
-      - 6379:6379
-
-  zoonavigator_web:
+  zoonavigator_web_antispam:
     image: elkozmon/zoonavigator-web:0.6.1
-    container_name: zoonavigator-web
+    container_name: zoonavigator_web_antispam
     ports:
       - 8001:8001
     environment:
       WEB_HTTP_PORT: 8001
-      API_HOST: zoonavigator_api
+      API_HOST: zoonavigator_api_antispam
       API_PORT: 9001
     depends_on:
-      - zoonavigator_api
+      - zoonavigator_api_antispam
 
-  zoonavigator_api:
+  zoonavigator_api_antispam:
     image: elkozmon/zoonavigator-api:0.6.1
-    container_name: zoonavigator-api
+    container_name: zoonavigator_api_antispam
     environment:
       API_HTTP_PORT: 9001

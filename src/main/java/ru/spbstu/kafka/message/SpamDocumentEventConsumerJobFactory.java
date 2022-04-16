@@ -18,7 +18,7 @@ import java.util.Properties;
 public class SpamDocumentEventConsumerJobFactory {
 
     private static final String componentId = "spamDocument";
-    private static final String CONSUMER_PROPERTIES_FILE_PATH = "./messages-consumer-properties.properties";
+    private static final String CONSUMER_PROPERTIES_FILE_PATH = "./src/main/resources/messages-consumer-properties.properties";
 
     private final KafkaConsumerJobFactory<SpamDocument> consumerJobFactory;
 

@@ -22,7 +22,7 @@ import javax.persistence.Table;
 @Setter
 @EqualsAndHashCode
 @ToString
-@Table(name = "IpEntry")
+@Table
 public class IpEntryDTO {
 
     @Id
@@ -42,21 +42,20 @@ public class IpEntryDTO {
 
     @Column(
             name = "city",
-            nullable = false,
             updatable = false,
             length = 50
     )
     private String city;
 
     @Column(
-            name = "city",
+            name = "latitude",
             nullable = false,
             updatable = false
     )
     private double latitude;
 
     @Column(
-            name = "city",
+            name = "longitude",
             nullable = false,
             updatable = false
     )
@@ -76,7 +75,7 @@ public class IpEntryDTO {
     private int lastTime;
 
     @Column(
-            name = "city",
+            name = "verified",
             nullable = false,
             updatable = false
     )
@@ -92,7 +91,6 @@ public class IpEntryDTO {
                       int lastTime,
                       boolean verified) {
         Validate.notNull(ipAddress);
-        Validate.notNull(city);
         this.userId = userId;
         this.ipAddress = ipAddress;
         this.city = city;

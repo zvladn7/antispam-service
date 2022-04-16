@@ -29,7 +29,7 @@ public class PreparedIpEntryFactory {
         GeoIP geoIPInfo = entry.getGeoIPInfo();
         double latitude = geoIPInfo.getLatitude();
         double longitude = geoIPInfo.getLongitude();
-        geoIpFeatures.setCoordinates(CoordinatesUtil.getCoordinatesAsLong(latitude, longitude));
+        geoIpFeatures.setCoordinates(CoordinatesUtil.getCoordinatesAsString(latitude, longitude));
         return geoIpFeatures;
     }
 

@@ -2,18 +2,14 @@ package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ConsumerWrapper {
 
@@ -36,8 +32,18 @@ public class ConsumerWrapper {
 
     void commitOffsets(@NotNull ConsumerRecords<Integer, String> records) {
         Validate.notNull(records);
-
-        consumer.commitSync();
+        Map<TopicPartition, Long> offsets = new HashMap<>();
+        for (ConsumerRecord<Integer, String> record : records) {
+            offsets.merge(
+                    new TopicPartition(record.topic(), record.partition()),
+                    record.offset(),
+                    Long::max
+            );
+        }
+        consumer.commitSync(offsets.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> new OffsetAndMetadata(e.getValue())
+        )));
     }
 
     ConsumerRecords<Integer, String> poll() {
@@ -52,6 +58,7 @@ public class ConsumerWrapper {
     void shutdown() {
         if (consumer != null) {
             log.info("Consumer [{}] shutdowning consumer", consumerId);
+            consumer.close();
         }
     }
 
