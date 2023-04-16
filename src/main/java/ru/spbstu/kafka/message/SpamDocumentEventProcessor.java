@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.message;
 
 import org.apache.commons.lang3.Validate;
@@ -27,7 +29,7 @@ public class SpamDocumentEventProcessor implements MessageProcessor<SpamDocument
     }
 
     @Override
-    public void process(@NotNull Map<String, List<SpamDocument>> messages) throws Exception {
+    public void process(@NotNull Map<String, List<SpamDocument>> messages) {
         messages.forEach((topic, documents) -> documents.forEach(document -> processMessage(topic, document)));
     }
 

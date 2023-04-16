@@ -1,0 +1,31 @@
+{
+  "user_id": 2,
+  "ip": "192.184.93.53",
+  "vpn": true,
+  "error_code": null,
+  "correlation": 0.0,
+  "ip_activity_infos": [
+    {
+      "name": "IP_FIRST_TIME",
+      "value": 1650098030
+    },
+    {
+      "name": "IP_LAST_TIME",
+      "value": 1650098030
+    },
+    {
+      "name": "IP_USERS_COUNT",
+      "value": 1
+    }
+  ],
+  "user_activity_infos": [
+    {
+      "name": "USER_LAST_TIME_LOGIN",
+      "value": 1650098030
+    },
+    {
+      "name": "USER_LAST_IP",
+      "value": 13
+    }
+  ]
+}

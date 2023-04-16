@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.Validate;
@@ -18,7 +20,7 @@ public class RecordJob<T> implements Runnable {
     private final int maxFailsCount;
     private final AtomicBoolean closed;
     private final Runnable recordProcessedCallback;
-    private final ConsumerRecord<Integer, String> record;
+    private final ConsumerRecord<Integer, String> consumerRecord;
     private final MessageProcessor<T> messageProcessor;
     private final MessageParser<T> messageParser;
 
@@ -26,13 +28,13 @@ public class RecordJob<T> implements Runnable {
                      int maxFailsCount,
                      @NotNull AtomicBoolean closed,
                      @NotNull Runnable recordProcessedCallback,
-                     @NotNull ConsumerRecord<Integer, String> record,
+                     @NotNull ConsumerRecord<Integer, String> consumerRecord,
                      @NotNull MessageProcessor<T> messageProcessor,
                      @NotNull MessageParser<T> messageParser) {
         Validate.notNull(componentId);
         Validate.notNull(closed);
         Validate.notNull(recordProcessedCallback);
-        Validate.notNull(record);
+        Validate.notNull(consumerRecord);
         Validate.notNull(messageProcessor);
         Validate.notNull(messageParser);
 
@@ -40,43 +42,40 @@ public class RecordJob<T> implements Runnable {
         this.maxFailsCount = maxFailsCount;
         this.closed = closed;
         this.recordProcessedCallback = recordProcessedCallback;
-        this.record = record;
+        this.consumerRecord = consumerRecord;
         this.messageProcessor = messageProcessor;
         this.messageParser = messageParser;
     }
 
     @Nullable
-    T parse(@NotNull ConsumerRecord<Integer, String> record) {
-        Validate.notNull(record);
+    T parse(@NotNull ConsumerRecord<Integer, String> consumerRecord) {
+        Validate.notNull(consumerRecord);
         try {
-            log.debug("Component [{}] parsing record \n [{}]", componentId, record);
-            String message = record.value();
+            log.debug("Component [{}] parsing consumerRecord \n [{}]", componentId, consumerRecord);
+            String message = consumerRecord.value();
             return messageParser.parse(message);
         } catch (Exception e) {
-            log.warn("Component [{}] failed to parse record \n [{}]", componentId, record);
+            log.warn("Component [{}] failed to parse consumerRecord \n [{}]", componentId, consumerRecord);
             return null;
         }
     }
 
     @Override
     public void run() {
-        boolean processed = false;
         try {
             if (closed.get()) {
                 return;
             }
-            T event = parse(record);
+            T event = parse(consumerRecord);
             if (event == null) {
                 return;
             }
-            if (!processEventWithRetries(event, record.topic())) {
+            if (!processEventWithRetries(event, consumerRecord.topic())) {
                 log.error("failed {} times. Skipping event [{}] for record [{}], component [{}]",
-                        maxFailsCount, event, record, componentId);
-            } else {
-                processed = true;
+                        maxFailsCount, event, consumerRecord, componentId);
             }
         } catch (Exception e) {
-            log.error("Component [{}] failed during consuming record \n [{}]", componentId, record, e);
+            log.error("Component [{}] failed during consuming record \n [{}]", componentId, consumerRecord, e);
             closed.set(true);
         } finally {
             recordProcessedCallback.run();

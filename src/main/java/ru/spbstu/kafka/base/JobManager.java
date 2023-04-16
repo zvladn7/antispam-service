@@ -1,7 +1,10 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +24,7 @@ public class JobManager {
 
     public JobManager(@NotNull Runnable runnable,
                       @NotNull ScheduledExecutorService executorService,
-                      @NotNull Long period,
+                      @Nullable Long period,
                       long initialDelay) {
         Validate.notNull(runnable);
         Validate.notNull(executorService);
@@ -37,6 +40,10 @@ public class JobManager {
             if (future != null && !future.isCancelled()) {
                 try {
                     future.get();
+                } catch (InterruptedException e) {
+                    log.error("Error in component [{}]", runnable, e);
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     log.error("Error in component [{}]", runnable, e);
                 }

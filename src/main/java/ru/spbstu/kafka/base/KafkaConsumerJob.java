@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.base;
 
 import com.google.common.base.Joiner;
@@ -13,10 +15,13 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class KafkaConsumerJob<T> implements Runnable {
 
@@ -58,8 +63,10 @@ public class KafkaConsumerJob<T> implements Runnable {
             log.info("Component [{}] kafka is starting kafka consumer", componentId);
 
             wrapper = ConsumerWrapper.createConsumerWrapper(componentId, jobConfiguration, consumerProperties);
-            log.info("Component [{}] consumer wrapper is created with properties: [{}]",
-                    componentId, Joiner.on(",").withKeyValueSeparator("=").join(consumerProperties));
+            if (log.isInfoEnabled()) {
+                log.info("Component [{}] consumer wrapper is created with properties: [{}]",
+                        componentId, Joiner.on(",").withKeyValueSeparator("=").join(consumerProperties));
+            }
 
             int processingThreadsCount = jobConfiguration.getProcessingThreadsCount();
             executor = Executors.newFixedThreadPool(processingThreadsCount);
@@ -72,15 +79,15 @@ public class KafkaConsumerJob<T> implements Runnable {
                     continue;
                 }
                 long lastOffset = 0;
-                for (ConsumerRecord<Integer, String> record : records) {
-                    lastOffset = Math.max(lastOffset, record.offset());
+                for (ConsumerRecord<Integer, String> consumerRecord : records) {
+                    lastOffset = Math.max(lastOffset, consumerRecord.offset());
                 }
                 log.info("Component [{}], offset [{}]", componentId, lastOffset);
                 log.debug("Component [{}] read [{}] records", componentId, records);
                 threadsCountLatch = new CountDownLatch(recordsSize);
                 List<ConsumerRecord<Integer, String>> batchOfRecords = new ArrayList<>(recordsSize);
-                for (ConsumerRecord<Integer, String> record : records) {
-                    batchOfRecords.add(record);
+                for (ConsumerRecord<Integer, String> consumerRecord : records) {
+                    batchOfRecords.add(consumerRecord);
                 }
 
                 startProcessingRecords(executor, threadsCountLatch, batchOfRecords, futures::add);
@@ -99,6 +106,10 @@ public class KafkaConsumerJob<T> implements Runnable {
 
                 return;
             }
+        } catch (InterruptedException e) {
+            log.error("Error during consuming records from topic [{}], componentId: [{}]",
+                    jobConfiguration.getSourceTopic(), componentId, e);
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
             shutdownFutures(futures);
             log.error("Error during consuming records from topic [{}], componentId: [{}]",
@@ -115,9 +126,9 @@ public class KafkaConsumerJob<T> implements Runnable {
                                         @NotNull CountDownLatch threadsCountLatch,
                                         @NotNull List<ConsumerRecord<Integer, String>> batchOfRecords,
                                         @NotNull Consumer<Future<?>> accumulator) {
-        for (ConsumerRecord<Integer, String> record : batchOfRecords) {
+        for (ConsumerRecord<Integer, String> consumerRecord : batchOfRecords) {
             RecordJob<T> recordJob = new RecordJob<>(componentId, jobConfiguration.getMaxFailsCount(), closed,
-                    threadsCountLatch::countDown, record, messageProcessor, messageParser);
+                    threadsCountLatch::countDown, consumerRecord, messageProcessor, messageParser);
             accumulator.accept(executor.submit(recordJob, null));
         }
     }

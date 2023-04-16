@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.publisher;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +14,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class ActivityInfoMapper {
+
+    private ActivityInfoMapper() {
+    }
 
     @NotNull
     public static List<ActivityInfoDTO> convert(@Nullable List<ActivityInfo> activityInfos) {
@@ -41,8 +46,8 @@ public class ActivityInfoMapper {
     }
 
     @NotNull
-    public static List<ActivityInfo> convertFromString(@NotNull String activityInfosString) {
-        if ("null".equals(activityInfosString)) {
+    public static List<ActivityInfo> convertFromString(@Nullable String activityInfosString) {
+        if (activityInfosString == null || "null".equals(activityInfosString)) {
             return Collections.emptyList();
         }
         List<ActivityInfo> activityInfos = new ArrayList<>();

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.user;
 
 import org.apache.commons.lang3.Validate;
@@ -15,7 +17,7 @@ import java.util.Properties;
 @Component
 public class UserLoginEventConsumerJobFactory {
 
-    private static final String componentId = "userLogins";
+    private static final String COMPONENT_ID = "userLogins";
     private static final String CONSUMER_PROPERTIES_FILE_PATH = "./src/main/resources/userlogin-consumer-properties.properties";
 
     private final KafkaConsumerJobFactory<UserLogin> consumerJobFactory;
@@ -28,7 +30,7 @@ public class UserLoginEventConsumerJobFactory {
         Validate.notNull(userLoginEventParser);
         Validate.notNull(userLoginEventProcessor);
         Properties consumerProperties = PropertiesProvider.provideProperties(CONSUMER_PROPERTIES_FILE_PATH);
-        this.consumerJobFactory = new KafkaConsumerJobFactory<>(componentId, consumerProperties, userLoginConfiguration, userLoginEventProcessor, userLoginEventParser);
+        this.consumerJobFactory = new KafkaConsumerJobFactory<>(COMPONENT_ID, consumerProperties, userLoginConfiguration, userLoginEventProcessor, userLoginEventParser);
     }
 
     @PostConstruct

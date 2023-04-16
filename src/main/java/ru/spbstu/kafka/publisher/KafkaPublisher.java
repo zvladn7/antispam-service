@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +26,7 @@ public class KafkaPublisher<T> {
     private final String topic;
     private final Properties producerConfiguration;
     private final Function<T, Integer> partitionKeySupplier;
-    private volatile KafkaProducer<Integer, String> producer;
+    private KafkaProducer<Integer, String> producer;
 
     public KafkaPublisher(@NotNull ObjectMapper mapper,
                           @NotNull String topic,
@@ -53,7 +55,7 @@ public class KafkaPublisher<T> {
         }
     }
 
-    public boolean publish(@NotNull T item) {
+    public synchronized boolean publish(@NotNull T item) {
         try {
             String serializedItem = serializeItem(item);
             logger.debug("pushing a message in topic [{}]: [{}]", topic, serializedItem);
@@ -72,7 +74,7 @@ public class KafkaPublisher<T> {
         }
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         if (producer != null) {
             producer.close();
         }
@@ -82,7 +84,6 @@ public class KafkaPublisher<T> {
         try {
             return mapper.writeValueAsString(item);
         } catch (JsonProcessingException e) {
-            logger.warn("Unable to serialize item: [{}]", item, e);
             throw new UncheckedIOException(e);
         }
     }

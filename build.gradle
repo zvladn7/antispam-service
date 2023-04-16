@@ -49,17 +49,28 @@ dependencies {
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.1'
 
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
     // https://mvnrepository.com/artifact/com.maxmind.geoip2/geoip2
     implementation 'com.maxmind.geoip2:geoip2:3.0.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-
     compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    // https://mvnrepository.com/artifact/junit/junit
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+    // https://mvnrepository.com/artifact/org.junit.vintage/junit-vintage-engine
+    testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.2'
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.4.0'
+    // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy
+    implementation group: 'net.bytebuddy', name: 'byte-buddy', version: '1.12.8'
+    // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
+    testImplementation group: 'net.bytebuddy', name: 'byte-buddy-agent', version: '1.12.8'
+    // https://mvnrepository.com/artifact/org.objenesis/objenesis
+    testImplementation group: 'org.objenesis', name: 'objenesis', version: '3.2'
+
 }
 
 test {

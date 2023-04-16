@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -6,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SpamDocumentDTO {
 
-    private static final String MESSAGE_TYPE = "message_type";
-    private static final String MESSAGE_ID = "message_id";
-    private static final String SENDER_ID = "sender_id";
-    private static final String RECEIVER_ID = "receiver_id";
-    private static final String TEXT = "text";
-    private static final String CREATED = "created";
+    private static final String JSON_MESSAGE_TYPE = "message_type";
+    private static final String JSON_MESSAGE_ID = "message_id";
+    private static final String JSON_SENDER_ID = "sender_id";
+    private static final String JSON_RECEIVER_ID = "receiver_id";
+    private static final String JSON_TEXT = "text";
+    private static final String JSON_CREATED = "created";
 
     private final String messageType;
     private final String messageId;
@@ -20,12 +22,12 @@ public class SpamDocumentDTO {
     private final String text;
     private final long created;
 
-    public SpamDocumentDTO(@JsonProperty(value = MESSAGE_TYPE, required = true) String messageType,
-                           @JsonProperty(value = MESSAGE_ID, required = true) String messageId,
-                           @JsonProperty(value = SENDER_ID, required = true) long senderId,
-                           @JsonProperty(value = RECEIVER_ID) Long receiverId,
-                           @JsonProperty(value = TEXT, required = true) String text,
-                           @JsonProperty(value = CREATED, required = true) long created) {
+    public SpamDocumentDTO(@JsonProperty(value = JSON_MESSAGE_TYPE, required = true) String messageType,
+                           @JsonProperty(value = JSON_MESSAGE_ID, required = true) String messageId,
+                           @JsonProperty(value = JSON_SENDER_ID, required = true) long senderId,
+                           @JsonProperty(value = JSON_RECEIVER_ID) Long receiverId,
+                           @JsonProperty(value = JSON_TEXT, required = true) String text,
+                           @JsonProperty(value = JSON_CREATED, required = true) long created) {
         this.messageType = messageType;
         this.messageId = messageId;
         this.senderId = senderId;
@@ -34,32 +36,32 @@ public class SpamDocumentDTO {
         this.created = created;
     }
 
-    @JsonProperty(value = MESSAGE_TYPE)
+    @JsonProperty(value = JSON_MESSAGE_TYPE)
     public String getMessageType() {
         return messageType;
     }
 
-    @JsonProperty(value = MESSAGE_ID)
+    @JsonProperty(value = JSON_MESSAGE_ID)
     public String getMessageId() {
         return messageId;
     }
 
-    @JsonProperty(value = SENDER_ID)
+    @JsonProperty(value = JSON_SENDER_ID)
     public Long getSenderId() {
         return senderId;
     }
 
-    @JsonProperty(value = RECEIVER_ID)
+    @JsonProperty(value = JSON_RECEIVER_ID)
     public Long getReceiverId() {
         return receiverId;
     }
 
-    @JsonProperty(value = TEXT)
+    @JsonProperty(value = JSON_TEXT)
     public String getText() {
         return text;
     }
 
-    @JsonProperty(value = CREATED)
+    @JsonProperty(value = JSON_CREATED)
     public long getCreated() {
         return created;
     }

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.base;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +34,14 @@ public class ConsumerWrapper {
 
     void commitOffsets(@NotNull ConsumerRecords<Integer, String> records) {
         Validate.notNull(records);
+        if (records.isEmpty()) {
+            return;
+        }
         Map<TopicPartition, Long> offsets = new HashMap<>();
-        for (ConsumerRecord<Integer, String> record : records) {
+        for (ConsumerRecord<Integer, String> consumerRecord : records) {
             offsets.merge(
-                    new TopicPartition(record.topic(), record.partition()),
-                    record.offset(),
+                    new TopicPartition(consumerRecord.topic(), consumerRecord.partition()),
+                    consumerRecord.offset(),
                     Long::max
             );
         }
@@ -67,6 +72,7 @@ public class ConsumerWrapper {
                                                  @NotNull Properties consumerProperties) {
         Validate.notNull(componentId);
         Validate.notNull(kafkaJobConfiguration);
+        Validate.notNull(consumerProperties);
 
         Properties properties = new Properties();
         properties.putAll(consumerProperties);
@@ -83,21 +89,8 @@ public class ConsumerWrapper {
         // This is the place where we are sure about consumer group name
         Validate.notBlank(consumerGroupId);
 
-        if (!properties.containsKey(ConsumerConfig.MAX_POLL_RECORDS_CONFIG)) {
-            properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaJobConfiguration.getMaxPoolRecords());
-        }
+        properties.computeIfAbsent(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, key -> kafkaJobConfiguration.getMaxPoolRecords());
         KafkaConsumer<Integer, String> consumer = new KafkaConsumer<>(properties);
-        consumer.subscribe(Collections.singletonList(kafkaJobConfiguration.getSourceTopic()), new ConsumerRebalanceListener() {
-            @Override
-            public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                log.info("Topic partitions revoked {}", partitions);
-            }
-
-            @Override
-            public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                log.info("Topic partitions assigned {}", partitions);
-            }
-        });
 
         return new ConsumerWrapper(consumerGroupId, consumer, kafkaJobConfiguration);
     }

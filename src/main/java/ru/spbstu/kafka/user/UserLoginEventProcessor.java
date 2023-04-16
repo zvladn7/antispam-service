@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 package ru.spbstu.kafka.user;
 
 import org.apache.commons.lang3.Validate;
@@ -17,15 +19,11 @@ public class UserLoginEventProcessor implements MessageProcessor<UserLogin> {
 
     private static final Logger log = LoggerFactory.getLogger(UserLoginEventProcessor.class);
 
-    private UserLoginConfiguration userLoginConfiguration;
-    private CheckLoginIpService checkLoginIpService;
+    private final CheckLoginIpService checkLoginIpService;
 
-    public UserLoginEventProcessor(@NotNull UserLoginConfiguration userLoginConfiguration,
-                                   @NotNull CheckLoginIpService checkLoginIpService) {
-        Validate.notNull(userLoginConfiguration);
+    public UserLoginEventProcessor(@NotNull CheckLoginIpService checkLoginIpService) {
         Validate.notNull(checkLoginIpService);
 
-        this.userLoginConfiguration = userLoginConfiguration;
         this.checkLoginIpService = checkLoginIpService;
     }
 
